@@ -1,17 +1,10 @@
 const { app, BrowserWindow, Menu, dialog, ipcMain, autoUpdater } = require('electron');
 const path = require('path');
 const fs = require('fs');
-const directory = require('./directory');
-const history = require("../../history.json");
 
 let devToolsOpened = false;
 
-function addHistory(url) {
-    if (history.steps[0] == url) { console.log('Returning from addHistory'); return; };
-    history.steps.push(url);
-    history.index++;
-    fs.writeFile("../../history.json", JSON.stringify(history, null, 2), () => { });
-}
+
 
 class Coroutine {
     constructor(callback) {
@@ -119,10 +112,6 @@ if (process.platform === 'win32') {
     app.setAppUserModelId('total_task');
 }
 
-autoUpdater.setFeedURL({
-    url: 'https://github.com/kty990/discordbotmaker/releases'
-});
-
 ipcMain.on("dev-refresh", () => {
     graphicsWindow.window.reload();
 })
@@ -145,41 +134,9 @@ ipcMain.on("toggle-dev-tools", () => {
     }
 })
 
-ipcMain.on("getFiles", (ev, ...args) => {
-    graphicsWindow.window.webContents.send("getFiles", directory.getAllFiles(args[0]));
-})
-
-ipcMain.on("load", () => {
-    console.log(`Attempting to set url to ${process.cwd()}`);
-    graphicsWindow.window.webContents.send("load", process.cwd());
-    history
-    addHistory(process.cwd());
-})
-
 // --------------------------------------------------------------------------------------------------
 // ==================================================================================================
 // --------------------------------------------------------------------------------------------------
-
-ipcMain.on("addHistory", (ev, data) => {
-    console.log(`addHistory: ${data}`);
-    addHistory(data);
-})
-
-ipcMain.on("backstep", (ev, data) => {
-    console.log(`Backstep: ${history.steps.length > 1}, ${history.steps}\tData: ${data}`);
-    if (history.index >= 1) {
-        graphicsWindow.window.webContents.send("backstep", history.steps[--history.index]);
-    }
-    fs.writeFile("../../history.json", JSON.stringify(history, null, 2), () => { });
-})
-
-ipcMain.on("forward", (ev, data) => {
-    console.log(`Forward: ${history.steps.length > history.index + 1}, ${history.steps}\tData: ${data}`);
-    if (history.steps.length > history.index + 1) {
-        graphicsWindow.window.webContents.send("forward", history.steps[++history.index]);
-    }
-    fs.writeFile("../../history.json", JSON.stringify(history, null, 2), () => { });
-})
 
 const cache = {};
 
