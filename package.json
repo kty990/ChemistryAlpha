@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "electron ./src/js",
+    "start": "python ./server/server.py && electron ./src/js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Ty Kutcher",
